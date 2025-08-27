@@ -1,3 +1,6 @@
+![CI](https://github.com/BharatAddress/tools-converters/actions/workflows/ci.yml/badge.svg)
+![CodeQL](https://github.com/BharatAddress/tools-converters/actions/workflows/codeql.yml/badge.svg)
+
 # Bharat Address Converters
 
 Format bridges and joins for the Bharat Address schema.
