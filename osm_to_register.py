@@ -17,11 +17,13 @@ import click
 @click.option("--ulb", "ulb_lgd", required=True, help="ULB LGD code")
 @click.option("--state", required=True)
 @click.option("--city", required=True)
-def main(input_path: Path, output_path: Path, ulb_lgd: str, state: str, city: str):
+@click.option("--strict/--lenient", default=False, help="Fail if unmapped required fields are missing")
+def main(input_path: Path, output_path: Path, ulb_lgd: str, state: str, city: str, strict: bool):
     with input_path.open() as f:
         data = json.load(f)
 
     out = {"type": "FeatureCollection", "features": []}
+    unmapped = []
     for feat in data.get("features", []):
         p = feat.get("properties", {})
         props = {
@@ -34,6 +36,9 @@ def main(input_path: Path, output_path: Path, ulb_lgd: str, state: str, city: st
             "pin": p.get("addr:postcode") or p.get("pin") or "",
             "primary_digipin": p.get("digipin") or "",
         }
+        if strict and (not props["street_name"] or not props["house_number"] or not props["pin"]):
+            unmapped.append(props)
+            continue
         out["features"].append({
             "type": "Feature",
             "properties": props,
@@ -42,6 +47,10 @@ def main(input_path: Path, output_path: Path, ulb_lgd: str, state: str, city: st
 
     with output_path.open("w") as f:
         json.dump(out, f, ensure_ascii=False)
+    if unmapped:
+        click.echo(f"Warning: {len(unmapped)} features skipped due to unmapped required fields", err=True)
+        if strict:
+            raise SystemExit(1)
 
 
 if __name__ == "__main__":
