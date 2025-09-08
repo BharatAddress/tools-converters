@@ -15,3 +15,7 @@ Install:
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 ```
+
+## Contributor Guide
+
+- Central guidelines: https://github.com/BharatAddress/.github/blob/main/AGENTS.md
